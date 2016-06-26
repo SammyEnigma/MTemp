@@ -1,0 +1,33 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PreLogin.qml</file>
+        <file>Login.qml</file>
+        <file>NetConfig.qml</file>
+        <file>NormalRun.qml</file>
+        <file>Room.qml</file>
+        <file>MTextInput.qml</file>
+        <file>MButton.qml</file>
+    </qresource>
+    <qresource prefix="/ico">
+        <file>icons/ajaxloader.gif</file>
+        <file>icons/alarm-48.png</file>
+        <file>icons/alarm-96.png</file>
+        <file>icons/clock-48.png</file>
+        <file>icons/clock-96.png</file>
+        <file>icons/contacts-50.png</file>
+        <file>icons/contacts-100.png</file>
+        <file>icons/info-48.png</file>
+        <file>icons/info-96.png</file>
+        <file>icons/key-52.png</file>
+        <file>icons/key-104.png</file>
+        <file>icons/mtemp-ico-50.png</file>
+        <file>icons/mtemp-ico-100.png</file>
+        <file>icons/net-48.png</file>
+        <file>icons/net-96.png</file>
+        <file>icons/rj45-52.png</file>
+        <file>icons/rj45-104.png</file>
+        <file>icons/settings-48.png</file>
+        <file>icons/settings-96.png</file>
+    </qresource>
+</RCC>
