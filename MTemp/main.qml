@@ -6,11 +6,53 @@ import mclient.testing 1.0
 ApplicationWindow{
     id: root
     visible: true
-    width: 320
+    width: 640
     height: 480
     title: qsTr("MTemp");
-    //icon: ":/icons/mtemp-ico-50.png"
 
+    property bool menuFlag: false
+
+    header: ToolBar {
+                    RowLayout {
+                        anchors.fill: parent
+                        Item { Layout.fillWidth: true }
+
+                        Button  {
+                            id: menuButton
+                            text: qsTr("\u25BA %1").arg(Qt.application.name)
+                            onClicked:  {
+                                            menu.open();
+                                        }
+
+                            Menu{
+                                  id: menu
+                                  y: menuButton.height
+                                  MenuItem{
+                                      id: time
+                                      text: qsTr("Data e ora")
+                                      enabled: false
+                                      onTriggered: {
+                                                      loader.source = "Time.qml"
+                                                   }
+                                  }
+                                  MenuItem{
+                                      id: logout
+                                      text: qsTr("Logout")
+                                      enabled: false
+                                      onTriggered: {
+                                                      client.disconnectFromHost();
+                                                   }
+                                  }
+                                onOpened:   {
+                                                menuButton.text = qsTr("\u25BC %1").arg(Qt.application.name);
+                                            }
+                                onClosed:   {
+                                                menuButton.text = qsTr("\u25BA %1").arg(Qt.application.name);
+                                            }
+                            }
+                        }
+                    }
+                }
 
     Loader{
         id: loader
@@ -34,57 +76,45 @@ ApplicationWindow{
         target: loader.item
         onConnectionRequest: {
                                 console.log("ConnectionRequest");
-                                console.log(bAddr);
-                                console.log(bPort);
-                                console.log(bUser);
-                                console.log(bPass);
                                 client.address = bAddr;
                                 client.port = bPort;
                                 client.username = bUser;
                                 client.password = bPass;
                                 client.connectToHost();
                              }
+        onTimeGetRequest:    {
+                                console.log("TimeGet");
+                                client.timeget();
+                             }
+
         onRoomTriggered: loader.source = "PreLogin.qml";
+    }
+
+    Connections{
+        target: client
+        onTimeGetData:  {
+                            loader.item.y.text = y;
+                            loader.item.m.text = m;
+                            loader.item.d.text = d;
+                            loader.item.w.currentIndex = parseInt(w);
+                            loader.item.hh.text = hh;
+                            loader.item.mm.text = mm;
+                            loader.item.ss.text = ss;
+                        }
     }
 
     MClient{
         id: client
-        onConnected: {
-                        loader.source = "NormalRun.qml"
-                     }
-    }
-
-}
-
-
-
-
-
-/*
-SwipeView {
-    id: swipeView
-    anchors.fill: parent
-    currentIndex: tabBar.currentIndex
-
-    Page1 {
-    }
-
-    Page {
-        Label {
-            text: qsTr("Second page")
-            anchors.centerIn: parent
-        }
+        onConnected:    {
+                            loader.source = "NormalRun.qml"
+                            time.enabled = true
+                            logout.enabled = true
+                        }
+        onDisconnected: {
+                            loader.source = "PreLogin.qml"
+                            time.enabled = false
+                            logout.enabled = false
+                        }
     }
 }
 
-footer: TabBar {
-    id: tabBar
-    currentIndex: swipeView.currentIndex
-    TabButton {
-        text: qsTr("First")
-    }
-    TabButton {
-        text: qsTr("Second")
-    }
-}
-*/

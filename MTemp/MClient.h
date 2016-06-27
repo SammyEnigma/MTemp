@@ -5,6 +5,7 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QHostInfo>
+#include <QDateTime>
 
 #include "mdefs.h"
 
@@ -18,17 +19,11 @@ class MClient : public QObject{
 
     public:
 
-        enum BoardAnswer{
-            Fail,
-            Error,
-            TokenReceived
-        };
-
         enum Commands{
             NoCommand,
             Conf,
-            TimeSet,
             TimeGet,
+            TimeSet,
             TempGet,
             RoomStat,
             RoomSet,
@@ -53,13 +48,19 @@ class MClient : public QObject{
         void connected();
         void disconnected();
         void error(QString lastError);
-        void answerReceived(MClient::BoardAnswer res);
         void dataSended();
 
+        void boardError();
+        void boardFailure();
+
+        //void confOK
         /*
-         *  FORMATO STRINGA CONF
-         *  (CLIENT)        SSID*KEY*IP*PORT*USER*PASSWORD*[CONF]
+         *  FORMATO STRINGA TIMEGET
+         *  (CLIENT)        username*password*[TIMEGET]
+         *  (SERVER)        (AA*MM*GG*WD*HH*MM*SS*[OK] || [FAIL] || [ERROR])
          */
+        void timeGetData(QString y, QString m, QString d, QString w, QString hh, QString mm, QString ss);
+
 
     public slots:
 
@@ -78,6 +79,7 @@ class MClient : public QObject{
 
 
         Q_INVOKABLE bool conf(const QString & ssid, const QString & key, const quint16 port, const QString &user, const QString &pass);
+        Q_INVOKABLE bool timeget();
 
     private slots:
         void connectedBouncer();
@@ -86,6 +88,8 @@ class MClient : public QObject{
         void rxHandler();
         void txHandler(qint64 bytes);
 
+        void parseBuffer();
+        void parseTimeGet();
     private:
         QTcpSocket * m_sock;
         QString      m_addr;

@@ -2,6 +2,8 @@
 
 #define NotConnected false
 #define Connected    true
+#define SEP          QString(_MTEMP_SEP)
+#define USRPSW       (m_user + SEP + m_pass + SEP)
 
 MClient::MClient(QObject *parent) : QObject(parent), m_sock(NULL),
                                                      m_addr(),
@@ -182,6 +184,12 @@ bool MClient::conf(const QString &ssid, const QString &key, const quint16 port, 
     return true;
 }
 
+bool MClient::timeget(){
+    m_currentCommand = TimeGet;
+
+    write(USRPSW + QString(_MTEMP_TIMEGET));
+}
+
 void MClient::connectedBouncer(){
     /*  imposto il flag di connessione                                                              */
     m_state = Connected;
@@ -204,17 +212,16 @@ void MClient::errorBouncer(const QAbstractSocket::SocketError err){
 void MClient::rxHandler(){
     /*  accodo quanto ricevuto al buffer                                                            */
     m_buffer += m_sock->readAll();
-    qDebug() << m_buffer;
     /*  se il buffer contiene la keyword                                                            */
-    if(m_buffer.contains(m_keyword)){
-        /*  emetto il segnale                                                                       */
-        emit answerReceived(TokenReceived);
+    if(m_buffer.contains(_MTEMP_BOARD_OK)){
+        /*  processo il comando                                                                     */
+        parseBuffer();
     /*  se invece contiene la stringa che indica il fallimento dell'operazione                      */
     }else if(m_buffer.contains(_MTEMP_BOARD_FAIL)){
-        emit answerReceived(Fail);
+        emit boardFailure();
     /*  se invece contiene la stringa di errore del login                                           */
     }else if(m_buffer.contains(_MTEMP_BOARD_ERROR)){
-        emit answerReceived(Error);
+        emit boardError();
     }
 }
 
@@ -226,4 +233,30 @@ void MClient::txHandler(qint64 bytes){
         /*  emetto il segnale                                                                       */
         emit dataSended();
     }
+}
+
+void MClient::parseBuffer(){
+
+    m_buffer.remove(SEP + QString(_MTEMP_BOARD_OK));
+
+    switch (m_currentCommand) {
+    case Conf:
+        //per ora nulla;
+        break;
+    case TimeGet:
+        parseTimeGet();
+    default:
+        break;
+    }
+    m_currentCommand = NoCommand;
+    m_buffer.clear();
+
+}
+
+void MClient::parseTimeGet(){
+
+    QStringList list = m_buffer.split(SEP);
+    qDebug() << m_buffer;
+    emit timeGetData(list[0], list[1], list[2], list[3], list[4], list[5], list[6]);
+
 }

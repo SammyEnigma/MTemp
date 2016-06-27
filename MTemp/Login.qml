@@ -106,7 +106,7 @@ Page {
             id: addr
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("192.168.1.1");
+            textInput.text: qsTr("danilom93.homepc.it");
             textInput.validator: RegExpValidator{
                                     regExp: /^(([a-z]||[A-Z]||[0-9])+[.])+$/
                                  }
@@ -217,7 +217,7 @@ Page {
             id: user
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("username");
+            textInput.text: qsTr("admin");
             textInput.validator: RegExpValidator{
                                     regExp: /^([a-z]||[A-Z]||[0-9])+$/
                                  }
@@ -235,7 +235,7 @@ Page {
             id: pass
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("8000");
+            textInput.text: qsTr("admin");
             textInput.echoMode: TextInput.Password;
             textInput.onTextChanged: {
                                         checkPwd();
@@ -316,8 +316,6 @@ Page {
                 clearAll();
             }
         }
-
-
     }
 
     // MESSAGE BOX
