@@ -106,7 +106,8 @@ Page {
             id: addr
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("danilom93.homepc.it");
+            //textInput.text: qsTr("danilom93.homepc.it");
+            textInput.text: qsTr("192.168.1.41");
             textInput.validator: RegExpValidator{
                                     regExp: /^(([a-z]||[A-Z]||[0-9])+[.])+$/
                                  }

@@ -5,7 +5,21 @@ import QtQuick.Layouts 1.1
 Item {
     id: root
 
-    signal roomTriggered
+    signal roomStat(int rNum)
+
+    signal roomSet(int rNum, string name, int mode);
+
+    signal showProgram(int rNum, string roomName);
+
+    function roomUpdate(name, status, mode, temp){
+
+        swipeView.currentItem.name.text = name;
+        swipeView.currentItem.mode = mode;
+        swipeView.currentItem.status = status;
+        swipeView.currentItem.temperature = temp;
+    }
+
+    property alias currentIndex: swipeView.currentIndex
 
     SwipeView {
         id: swipeView
@@ -13,30 +27,92 @@ Item {
         currentIndex: 0
 
         Room{
-            name: "Stanza 1"
-            onForceOn: {
-                console.log(forceCommand);
-                root.roomTriggered();
-            }
+            id: room0
+            number: 0
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 1"
         }
         Room{
-            name: "Stanza 2"
+            id: room1
+            number: 1
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 2"
+        }
+        Room{
+            id: room2
+            number: 2
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 3"
+        }
+        Room{
+            id: room3
+            number: 3
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 4"
+        }
+        Room{
+            id: room4
+            number: 4
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 5"
+        }
+        Room{
+            id: room5
+            number: 5
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 6"
+        }
+        Room{
+            id: room6
+            number: 6
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 7"
+        }
+        Room{
+            id: room7
+            number: 7
+            status: false
+            mode: 0
+            temperature: 25
+            name.text: "Stanza 8"
+        }
+
+        onCurrentIndexChanged: {
+            root.roomStat(currentIndex);
+        }
+        Component.onCompleted: {
+            root.roomStat(0);
+        }
+    }
+
+    Connections{
+        target: swipeView.currentItem
+
+        onRoomSetRequest: {
+            root.roomSet(swipeView.currentItem.number, swipeView.currentItem.name.text, swipeView.currentItem.mode);
+        }
+
+        onConfigRequest:{
+            root.showProgram(swipeView.currentItem.number, swipeView.currentItem.name.text)
+        }
+
+        onRoomUpdateRequest: {
+            root.roomStat(currentIndex);
         }
 
     }
-
-    /*
-    TabBar {
-        id: tabBar
-        anchors.bottom: parent.bottom
-        width: parent.width
-        currentIndex: swipeView.currentIndex
-        TabButton {
-            text: qsTr("Nome Stanza 1")
-        }
-        TabButton {
-            text: qsTr("Nome Stanza 2")
-        }
-    }
-    */
 }

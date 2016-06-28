@@ -9,6 +9,8 @@
         <file>MTextInput.qml</file>
         <file>MButton.qml</file>
         <file>Time.qml</file>
+        <file>UserLocker.qml</file>
+        <file>Program.qml</file>
     </qresource>
     <qresource prefix="/ico">
         <file>icons/ajaxloader.gif</file>
@@ -30,5 +32,9 @@
         <file>icons/rj45-104.png</file>
         <file>icons/settings-48.png</file>
         <file>icons/settings-96.png</file>
+        <file>icons/room-64.png</file>
+        <file>icons/room-96.png</file>
+        <file>icons/calendar-52.png</file>
+        <file>icons/calendar-104.png</file>
     </qresource>
 </RCC>

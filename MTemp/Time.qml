@@ -1,6 +1,5 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
@@ -9,17 +8,57 @@ Item {
 
     id: root;
 
-    property alias yrs  : year.textInput
-    property alias mon  : month.textInput
-    property alias day  : day.textInput
-    property alias week  : weekdayCombo
-    property alias hrs : hours.textInput
-    property alias min : minutes.textInput
-    property alias sec : seconds.textInput
-
-
     signal timeGetRequest
-    signal timeSetRequest
+    signal timeSetRequest(string yrs, string mon, string day, string wday, string hrs, string min, string sec);
+    signal timeGoBack
+
+    function timeUpdate(year, month, day, wday, hours, minute, seconds){
+          yearLine.textInput.text = year;
+          monthLine.textInput.text = month;
+          dayLine.textInput.text = day;
+          weekdayCombo.currentIndex = wday - 1;
+          hoursLine.textInput.text = hours;
+          minutesLine.textInput.text = minute;
+          secondsLine.textInput.text = seconds;
+          tmr.start();
+    }
+
+    function timer(){
+        var d = new Date();
+        console.log(d);
+
+        if(yearLine.textInput.focus  || monthLine.textInput.focus   || dayLine.textInput.focus     ||
+           hoursLine.textInput.focus || minutesLine.textInput.focus || secondsLine.textInput.focus ||
+           weekdayCombo.focus){
+            return;
+        }
+
+        d.setFullYear(yearLine.textInput.text + 2000);
+        d.setMonth(parseInt(monthLine.textInput.text) - 1);
+        d.setDate(parseInt(dayLine.textInput.text));
+        d.setHours(parseInt(hoursLine.textInput.text));
+        d.setMinutes(parseInt(minutesLine.textInput.text));
+        d.setSeconds(parseInt(secondsLine.textInput.text) + 1);
+
+        yearLine.textInput.text = d.getFullYear() - 2000;
+        monthLine.textInput.text = d.getMonth() + 1
+        dayLine.textInput.text = d.getDate();
+        weekdayCombo.currentIndex = d.getUTCDay() - 1;
+        hoursLine.textInput.text = d.getHours();
+        minutesLine.textInput.text = d.getMinutes();
+        secondsLine.textInput.text = d.getSeconds();
+
+        delete d;
+    }
+
+    Timer{
+        id: tmr
+        interval: 1000
+        repeat: true;
+        onTriggered: {
+            timer();
+        }
+    }
 
     Rectangle{
 
@@ -97,7 +136,7 @@ Item {
             }
 
             MTextInput{
-                id: hours
+                id: hoursLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "12"
@@ -109,7 +148,7 @@ Item {
             }
 
             MTextInput{
-                id: minutes
+                id: minutesLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "30"
@@ -121,7 +160,7 @@ Item {
             }
 
             MTextInput{
-                id: seconds
+                id: secondsLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "30"
@@ -171,7 +210,7 @@ Item {
             }
 
             MTextInput{
-                id: day
+                id: dayLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "12"
@@ -184,7 +223,7 @@ Item {
             }
 
             MTextInput{
-                id: month
+                id: monthLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "30"
@@ -196,7 +235,7 @@ Item {
             }
 
             MTextInput{
-                id: year
+                id: yearLine
                 width: root.width / 6
                 height: 30
                 textInput.text: "30"
@@ -217,17 +256,15 @@ Item {
             }
             width: root.width / 2
             height: 30
-            editable: false
             model: ListModel {
                 id: model
-                ListElement { text: "Domenica";     number: 1}
-                ListElement { text: "Lunedì";       number: 2}
-                ListElement { text: "Martedì";      number: 3}
-                ListElement { text: "Mercoledì";    number: 4}
-                ListElement { text: "Giovedì";      number: 5}
-                ListElement { text: "Venerdì";      number: 6}
-                ListElement { text: "Sabato";       number: 7}
-                ListElement { text: "Domenica";     number: 8}
+                ListElement { text: "Domenica"; }
+                ListElement { text: "Lunedì";   }
+                ListElement { text: "Martedì";  }
+                ListElement { text: "Mercoledì";}
+                ListElement { text: "Giovedì";  }
+                ListElement { text: "Venerdì";  }
+                ListElement { text: "Sabato";   }
             }
             currentIndex: 1
         }
@@ -241,21 +278,19 @@ Item {
             }
 
             MButton{
-                id: updateButton
-                height: 30
-                width: 75
-                text: qsTr("Aggiorna");
-                onClicked: {
-                                root.timeGetRequest();
-                           }
-            }
-
-            MButton{
                 id: setButton
                 height: 30
                 width: 75
                 text: qsTr("Imposta");
                 onClicked: {
+                                root.timeSetRequest(yearLine.textInput.text,
+                                                    monthLine.textInput.text,
+                                                    dayLine.textInput.text,
+                                                    weekdayCombo.currentIndex,
+                                                    hoursLine.textInput.text,
+                                                    minutesLine.textInput.text,
+                                                    secondsLine.textInput.text);
+                                focus = true;
                            }
             }
 
@@ -263,10 +298,12 @@ Item {
                 id: cancelButton
                 height: 30
                 width: 75
-                text: qsTr("Annulla");
+                text: qsTr("Indietro");
                 onClicked: {
+                                root.timeGoBack();
                            }
             }
         }
     }
+
 }

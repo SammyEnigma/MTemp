@@ -40,13 +40,13 @@
 /*
  *  FORMATO STRINGA ROOMSTAT
  *  (CLIENT)    username*password*R*[ROOMSTAT]
- *  (SERVER)    (R*NAME*ADDRESS*RELAYOUT*STATE*ISFORCEDON*ISFORCEDOFF*TT*[OK] || [FAIL] || [ERROR])
+ *  (SERVER)    (R*NAME*STATE*ISFORCEDON*ISFORCEDOFF*TT*[OK] || [FAIL] || [ERROR])
  */
 #define _MTEMP_ROOMSTAT             "[ROOMSTAT]"
 
 /*
  *  FORMATO STRINGA ROOMSET
- *  (CLIENT)    username*password*R*NAME*ADDRESS*RELAYOUT*FORCEON*FORCEOFF*AUTO*[ROOMSET]
+ *  (CLIENT)    username*password*R*NAME*FORCEON*FORCEOFF*AUTO*[ROOMSET]
  *  (SERVER)    ([OK] || [FAIL] || [ERROR])
  */
 #define _MTEMP_ROOMSET             "[ROOMSET]"
@@ -77,6 +77,7 @@
  *  (CLIENT)    username*password*R*[FORCEOFF]
  *  (SERVER)    ([OK] || [FAIL] || [ERROR])
  */
+
 #define _MTEMP_FORCEOFF             "[FORCEOFF]"
 
 #define _MTEMP_SEP                  '*'

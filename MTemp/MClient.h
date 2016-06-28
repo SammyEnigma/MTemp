@@ -6,6 +6,7 @@
 #include <QTcpSocket>
 #include <QHostInfo>
 #include <QDateTime>
+#include <QThread>
 
 #include "mdefs.h"
 
@@ -24,11 +25,11 @@ class MClient : public QObject{
             Conf,
             TimeGet,
             TimeSet,
-            TempGet,
             RoomStat,
             RoomSet,
             ProgGet,
             ProgSet,
+            TempGet,
             ForceOn,
             ForceOff
         };
@@ -59,7 +60,9 @@ class MClient : public QObject{
          *  (CLIENT)        username*password*[TIMEGET]
          *  (SERVER)        (AA*MM*GG*WD*HH*MM*SS*[OK] || [FAIL] || [ERROR])
          */
-        void timeGetData(QString y, QString m, QString d, QString w, QString hh, QString mm, QString ss);
+        void timeGetData(QString yrs, QString mon, QString day, QString wday, QString hrs, QString min, QString sec);
+        void roomStatData(quint32 number, QString roomName, bool state, quint32 mode, quint32 temperature);
+        void progGetData(quint32 temp, quint32 wday, QString sh, QString sm, QString eh, QString em, bool en);
 
 
     public slots:
@@ -78,8 +81,13 @@ class MClient : public QObject{
         bool setPassword(const QString & password);
 
 
-        Q_INVOKABLE bool conf(const QString & ssid, const QString & key, const quint16 port, const QString &user, const QString &pass);
-        Q_INVOKABLE bool timeget();
+        Q_INVOKABLE void conf(const QString & ssid, const QString & key, const quint16 port, const QString &user, const QString &pass);
+        Q_INVOKABLE void timeget();
+        Q_INVOKABLE void timeset(const QString & yrs, const QString & mon, const QString & day, const QString & wday, const QString & hrs, const QString & min, const QString & sec);
+        Q_INVOKABLE void roomstat(const quint32 & number);
+        Q_INVOKABLE void roomset(const quint32 & number, const QString & roomName, const quint32 & roomMode);
+        Q_INVOKABLE void progget(const quint32 & roomNumber, const quint32 & weekday);
+        Q_INVOKABLE void progset(const quint32 & roomNumber, const quint32 & weekday, const QString & sh, const QString & sm, const QString & eh, const QString & em, const QString & tt, const bool & en);
 
     private slots:
         void connectedBouncer();
@@ -90,6 +98,8 @@ class MClient : public QObject{
 
         void parseBuffer();
         void parseTimeGet();
+        void parseRoomStat();
+        void parseProgGet();
     private:
         QTcpSocket * m_sock;
         QString      m_addr;
@@ -101,6 +111,8 @@ class MClient : public QObject{
         bool         m_state;
         quint32      m_dataLen;
         Commands     m_currentCommand;
+        quint32      m_currentRoom;
+        quint32      m_currentDay;
 };
 
 #endif // MCLIENT_H

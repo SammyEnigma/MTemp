@@ -14,7 +14,9 @@ MClient::MClient(QObject *parent) : QObject(parent), m_sock(NULL),
                                                      m_keyword(),
                                                      m_state(NotConnected),
                                                      m_dataLen(0),
-                                                     m_currentCommand(NoCommand){
+                                                     m_currentCommand(NoCommand),
+                                                     m_currentRoom(0),
+                                                     m_currentDay(0){
     /*  nulla da commentare                                                                         */
     m_sock = new QTcpSocket(this);
     /*  connetto i segnali della socket                                                             */
@@ -82,6 +84,8 @@ bool MClient::disconnectFromHost(){
 }
 
 bool MClient::write(const QString &str){
+    /*  per trace                                                                                   */
+    qDebug() << QString("MClient::write    -> ") + str;
     /*  se non sono connesso                                                                        */
     if(!m_state){
         /*  ritorno false                                                                           */
@@ -178,17 +182,127 @@ bool MClient::setPassword(const QString &password){
     return false;
 }
 
-bool MClient::conf(const QString &ssid, const QString &key, const quint16 port, const QString &user, const QString &pass){
+void MClient::conf(const QString &ssid, const QString &key, const quint16 port, const QString &user, const QString &pass){
     /*  non è necessario fare controlli perchè il form è a prova di idiota, per cui,                */
+    Q_UNUSED(ssid);
+    Q_UNUSED(key);
+    Q_UNUSED(port);
+    Q_UNUSED(user);
+    Q_UNUSED(pass);
 
-    return true;
 }
 
-bool MClient::timeget(){
+void MClient::timeget(){
+    /*  setto il comando                                                                            */
     m_currentCommand = TimeGet;
-
+    /*  mando il comando                                                                            */
     write(USRPSW + QString(_MTEMP_TIMEGET));
 }
+
+void MClient::timeset(const QString &yrs, const QString &mon, const QString &day, const QString &wday, const QString &hrs, const QString &min, const QString &sec){
+    QString str;
+    /*  setto il comando                                                                            */
+    m_currentCommand = TimeSet;
+    /*  accodo l'anno                                                                               */
+    str += yrs + SEP;
+    /*  accodo il mese                                                                              */
+    str += mon + SEP;
+    /*  accodo il giorno                                                                            */
+    str += day + SEP;
+    /*  accodo il giorno della settimana incrementato di 1                                          */
+    str += QString::number(wday.toUInt() + 1) + SEP;
+    /*  accodo le ore                                                                               */
+    str += hrs + SEP;
+    /*  accodo i minuti                                                                             */
+    str += min + SEP;
+    /*  accodo i secondi                                                                            */
+    str += sec + SEP;
+    /*  mando il comando                                                                            */
+    write(USRPSW + str + QString(_MTEMP_TIMESET));
+}
+
+void MClient::roomstat(const quint32 &number){
+    /*  setto il comando                                                                            */
+    m_currentCommand = RoomStat;
+    /*  mando il comando                                                                            */
+    write(USRPSW + QString::number(number) + SEP + QString(_MTEMP_ROOMSTAT));
+}
+
+void MClient::roomset(const quint32 & number, const QString & roomName, const quint32 & roomMode){
+
+    QString str;
+    /*  setto il comando                                                                            */
+    m_currentCommand = RoomSet;
+    /*  imposto la stanza corrente                                                                  */
+    m_currentRoom = number;
+    /*  accodo il numero della stanza                                                               */
+    str += QString::number(number) + SEP;
+    /*  accodo il nome                                                                              */
+    str += roomName + SEP;
+    /*  accodo la modalità                                                                          */
+    switch (roomMode) {
+    case 1:
+        str += QString(_MTEMP_ENABLED)  + SEP + QString(_MTEMP_DISABLED) + SEP + QString(_MTEMP_DISABLED) + SEP;
+        break;
+    case 2:
+        str += QString(_MTEMP_DISABLED) + SEP + QString(_MTEMP_ENABLED)  + SEP + QString(_MTEMP_DISABLED) + SEP;
+        break;
+    default:
+        str += QString(_MTEMP_DISABLED) + SEP + QString(_MTEMP_DISABLED) + SEP + QString(_MTEMP_ENABLED)  + SEP;
+        break;
+    }
+    /*  mando il comando                                                                            */
+    write(USRPSW + str + QString(_MTEMP_ROOMSET));
+}
+
+void MClient::progget(const quint32 & roomNumber, const quint32 & weekday){
+
+    QString str;
+    /*  setto il comando                                                                            */
+    m_currentCommand = ProgGet;
+    /*  imposto la stanza corrente                                                                  */
+    m_currentRoom = roomNumber;
+    /*  imposto il giorno corrente                                                                  */
+    m_currentDay = weekday;
+    /*  accodo il numero della stanza                                                               */
+    str += QString::number(roomNumber) + SEP;
+    /*  accodo il giorno                                                                            */
+    str += QString::number(weekday + 1) + SEP;
+    /*  mando il comando                                                                            */
+    write(USRPSW + str + QString(_MTEMP_PROGGET));
+}
+
+void MClient::progset(const quint32 &roomNumber, const quint32 &weekday, const QString &sh, const QString &sm, const QString &eh, const QString &em, const QString &tt, const bool &en){
+
+//  username*password*R*D*HS*MS*HE*ME*TT*E*[PROGSET]
+    QString str;
+    /*  setto il comando                                                                            */
+    m_currentCommand = ProgSet;
+    /*  imposto la stanza corrente                                                                  */
+    m_currentRoom = roomNumber;
+    /*  imposto il giorno corrente                                                                  */
+    m_currentDay = weekday;
+    /*  accodo il numero della stanza                                                               */
+    str += QString::number(roomNumber) + SEP;
+    /*  accodo il giorno                                                                            */
+    str += QString::number(weekday + 1) + SEP;
+
+    str += (sh.length() == 1 ? QString("0") + sh : sh) + SEP;
+
+    str += (sm.length() == 1 ? QString("0") + sm : sm) + SEP;
+
+    str += (eh.length() == 1 ? QString("0") + eh : eh) + SEP;
+
+    str += (em.length() == 1 ? QString("0") + em : em) + SEP;
+
+    str += (tt.length() == 1 ? QString("0") + tt : tt) + SEP;
+
+    str += (en ? _MTEMP_ENABLED : _MTEMP_DISABLED) + SEP;
+
+    /*  mando il comando                                                                            */
+    write(USRPSW + str + QString(_MTEMP_PROGSET));
+}
+
 
 void MClient::connectedBouncer(){
     /*  imposto il flag di connessione                                                              */
@@ -205,6 +319,7 @@ void MClient::diconnectedBouncer(){
 }
 
 void MClient::errorBouncer(const QAbstractSocket::SocketError err){
+    Q_UNUSED(err);
     /*  rimbalzo il segnale                                                                         */
     emit error(m_sock->errorString());
 }
@@ -212,6 +327,10 @@ void MClient::errorBouncer(const QAbstractSocket::SocketError err){
 void MClient::rxHandler(){
     /*  accodo quanto ricevuto al buffer                                                            */
     m_buffer += m_sock->readAll();
+
+    /*  per trace                                                                                   */
+    qDebug() << QString("MClient::rxHandler -> ") + m_buffer;
+
     /*  se il buffer contiene la keyword                                                            */
     if(m_buffer.contains(_MTEMP_BOARD_OK)){
         /*  processo il comando                                                                     */
@@ -245,6 +364,31 @@ void MClient::parseBuffer(){
         break;
     case TimeGet:
         parseTimeGet();
+        break;
+    case TimeSet:
+        QThread::msleep(250);
+        m_currentCommand = NoCommand;
+        m_buffer.clear();
+        timeget();
+        return;
+    case RoomStat:
+        parseRoomStat();
+        break;
+    case RoomSet:
+        QThread::msleep(250);
+        m_currentCommand = NoCommand;
+        m_buffer.clear();
+        roomstat(m_currentRoom);
+        return;
+    case ProgGet:
+        parseProgGet();
+        break;
+    case ProgSet:
+        QThread::msleep(250);
+        m_currentCommand = NoCommand;
+        m_buffer.clear();
+        progget(m_currentRoom, m_currentDay);
+        return;
     default:
         break;
     }
@@ -256,7 +400,39 @@ void MClient::parseBuffer(){
 void MClient::parseTimeGet(){
 
     QStringList list = m_buffer.split(SEP);
-    qDebug() << m_buffer;
     emit timeGetData(list[0], list[1], list[2], list[3], list[4], list[5], list[6]);
 
+}
+
+void MClient::parseRoomStat(){
+
+
+    quint32 mode = 0;
+
+    QStringList list = m_buffer.split(SEP);
+
+
+    if(      list[3] == QString(_MTEMP_DISABLED) && list[4] == QString(_MTEMP_DISABLED)){
+        mode = 0;
+    }else if(list[3] == QString(_MTEMP_ENABLED)  && list[4] == QString(_MTEMP_DISABLED)){
+        mode = 1;
+    }else if(list[3] == QString(_MTEMP_DISABLED) && list[4] == QString(_MTEMP_ENABLED)){
+        mode = 2;
+    }else{
+        emit boardError();
+    }
+
+    m_currentRoom = 0;
+
+    emit roomStatData(list[0].toUInt(), list[1],(list[2] == QString(_MTEMP_ENABLED)), mode, list[5].toUInt());
+}
+
+void MClient::parseProgGet(){
+
+    QStringList list = m_buffer.split(SEP);
+
+    m_currentRoom = 0;
+    m_currentDay = 0;
+
+    emit progGetData(list[6].toUInt(), list[1].toUInt() - 1, list[2], list[3], list[4], list[5], list[7] == QString(_MTEMP_ENABLED));
 }
