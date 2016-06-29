@@ -1,9 +1,9 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
+import Qt.labs.settings 1.0
 
 Page {
     id: root;
@@ -57,7 +57,9 @@ Page {
             dialog.open();
             pass.textInput.text = "";
             pass.textInput.forceActiveFocus();
+            return false;
         }
+        return true;
     }
 
     //  FRAME RETE
@@ -106,11 +108,19 @@ Page {
             id: addr
             width: root.width / 2
             height: 30
-            //textInput.text: qsTr("danilom93.homepc.it");
-            textInput.text: qsTr("192.168.1.41");
+            textInput.text: (settings.ipaddress === "" ? qsTr("192.168.1.41") : settings.ipaddress);
             textInput.validator: RegExpValidator{
                                     regExp: /^(([a-z]||[A-Z]||[0-9])+[.])+$/
                                  }
+            textInput.onTextChanged: {
+                                        if(rememberNet.checked){
+                                            settings.ipaddress = text;
+                                            settings.ipport = port.text
+                                        }else{
+                                            settings.ipaddress = "";
+                                            settings.ipport = "";
+                                        }
+                                     }
         }
 
         Label{
@@ -125,49 +135,40 @@ Page {
             id: port
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("8000");
+            textInput.text: (settings.ipport === "" ? qsTr("8000") : settings.ipport);
             textInput.validator: RegExpValidator{
                                     regExp: /^(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[1-9])$/
                                  }
+            textInput.onTextChanged: {
+                                        if(rememberNet.checked){
+                                            settings.ipaddress = addr.text;
+                                            settings.ipport = text
+                                        }else{
+                                            settings.ipaddress = "";
+                                            settings.ipport = "";
+                                        }
+                                     }
         }
 
         Label{
             id: rememberNetLabel
             width: root.width / 3
             height: 30
-            text: qsTr("Ricorda");
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
-
-        Switch{
-            id: rememberNet
+        Item{
+            width: root.width / 2
             height: 30
-            checked: true
-            style:  SwitchStyle {
-                        groove: Rectangle {
-                                    implicitWidth: 75
-                                    implicitHeight: 20
-                                    radius: 9
-                                    border.color: "LightSlateGrey"
-                                    border.width: 1
-                                }
-                        handle: Rectangle {
-                                    implicitWidth: 25
-                                    implicitHeight: 25
-                                    radius: 25
-                                    color: "SlateGray"
-                                    border.color: "LightSlateGrey"
-                                    border.width: 1
-                                }
-                    }
-            onCheckedChanged:   {
-                                    if(checked){
-                                        rememberNetLabel.text = qsTr("Ricorda");
-                                    }else{
-                                        rememberNetLabel.text = qsTr("Non ricordare");
-                                    }
-                                }
+
+            CheckBox{
+                id: rememberNet
+                width: root.width / 3
+                height: 30
+                anchors.centerIn: parent
+                checked: true;
+                text: qsTr("Ricorda");
+            }
         }
     }
 
@@ -218,11 +219,21 @@ Page {
             id: user
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("admin");
+            textInput.text: (settings.username === "" ? qsTr("admin") : settings.username);
             textInput.validator: RegExpValidator{
                                     regExp: /^([a-z]||[A-Z]||[0-9])+$/
                                  }
+            textInput.onTextChanged: {
+                                        if(rememberUsr.checked){
+                                            settings.username = text;
+                                            settings.password = pass.text;
+                                        }else{
+                                            settings.username = "";
+                                            settings.password = "";
+                                        }
+                                     }
         }
+
 
         Label{
             width: root.width / 3
@@ -236,10 +247,18 @@ Page {
             id: pass
             width: root.width / 2
             height: 30
-            textInput.text: qsTr("admin");
+            textInput.text: (settings.password === "" ? qsTr("admin") : settings.password);
             textInput.echoMode: TextInput.Password;
             textInput.onTextChanged: {
-                                        checkPwd();
+                                        if(checkPwd()){
+                                            if(rememberUsr.checked){
+                                                settings.username = user.text;
+                                                settings.password = text;
+                                            }else{
+                                                settings.username = "";
+                                                settings.password = "";
+                                            }
+                                        }
                                      }
         }
 
@@ -247,39 +266,22 @@ Page {
             id: rememberUsrLabel
             width: root.width / 3
             height: 30
-            text: qsTr("Ricorda");
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
 
-        Switch{
-            id: rememberUsr
+        Item{
+            width: root.width / 2
             height: 30
-            checked: true
-            style:  SwitchStyle {
-                        groove: Rectangle {
-                                    implicitWidth: 75
-                                    implicitHeight: 20
-                                    radius: 9
-                                    border.color: "LightSlateGrey"
-                                    border.width: 1
-                                }
-                        handle: Rectangle {
-                                    implicitWidth: 25
-                                    implicitHeight: 25
-                                    radius: 25
-                                    color: "SlateGray"
-                                    border.color: "LightSlateGrey"
-                                    border.width: 1
-                                }
-                    }
-            onCheckedChanged:   {
-                                    if(checked){
-                                        rememberUsrLabel.text = qsTr("Ricorda");
-                                    }else{
-                                        rememberUsrLabel.text = qsTr("Non ricordare");
-                                    }
-                                }
+
+            CheckBox{
+                id: rememberUsr
+                width: root.width / 3
+                height: 30
+                anchors.centerIn: parent
+                checked: true;
+                text: qsTr("Ricorda");
+            }
         }
     }
 
@@ -300,10 +302,27 @@ Page {
             text: qsTr("Login");
             onClicked: {
                             if(checkAll()){
+
+                                if(rememberNet.checked){
+                                    settings.ipaddress = addr.text;
+                                    settings.ipport = port.text;
+                                }else{
+                                    settings.ipaddress = "";
+                                    settings.ipport = "";
+                                }
+                                if(rememberUsr.checked){
+                                    settings.username = user.text;
+                                    settings.password = pass.text;
+                                }else{
+                                    settings.username = "";
+                                    settings.password = "";
+                                }
+
                                 root.connectionRequest(addr.textInput.text,
                                                        parseInt(port.textInput.text.toString()),
                                                        user.textInput.text,
                                                        pass.textInput.text);
+
                             }
                        }
         }
@@ -324,4 +343,13 @@ Page {
         id: dialog
         standardButtons: StandardButton.Ok;
     }
+
+    Settings {
+        id: settings
+        property string ipaddress
+        property string ipport
+        property string username
+        property string password
+    }
+
 }

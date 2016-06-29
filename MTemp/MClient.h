@@ -48,7 +48,7 @@ class MClient : public QObject{
         void passwordChanged(QString newPassword);
         void connected();
         void disconnected();
-        void error(QString lastError);
+        void error(QString sockErr);
         void dataSended();
 
         void boardError();

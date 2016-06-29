@@ -37,4 +37,7 @@
         <file>icons/calendar-52.png</file>
         <file>icons/calendar-104.png</file>
     </qresource>
+    <qresource prefix="/media">
+        <file>sounds/buzzer.wav</file>
+    </qresource>
 </RCC>

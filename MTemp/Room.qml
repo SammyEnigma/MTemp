@@ -176,6 +176,7 @@ Page {
             height: 30
             width: 75
             text: qsTr("Salva");
+            //enabled: (temperature == 0 ? false : true);
             onClicked: {
                 root.roomSetRequest();
             }
@@ -186,6 +187,7 @@ Page {
             height: 30
             width: 75
             text: qsTr("Aggiorna");
+            //enabled: (temperature == 0 ? false : true);
             onClicked: {
                 root.roomUpdateRequest();
             }

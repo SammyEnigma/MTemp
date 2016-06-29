@@ -10,7 +10,6 @@ Item {
     SwipeView {
         id: swipeView
         anchors.fill: parent
-        currentIndex: tabBar.currentIndex
 
         Login{
             id: loginPage
@@ -18,22 +17,6 @@ Item {
                 root.connectionRequest(bAddr, bPort, bUser, bPass);
             }
         }
-        NetConfig{
-            id: netConfigPage
-        }
-
     }
 
-    TabBar {
-        id: tabBar
-        anchors.bottom: parent.bottom
-        width: parent.width
-        currentIndex: swipeView.currentIndex
-        TabButton {
-            text: qsTr("Login")
-        }
-        TabButton {
-            text: qsTr("Configura Rete")
-        }
-    }
 }

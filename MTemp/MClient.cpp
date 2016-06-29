@@ -337,9 +337,15 @@ void MClient::rxHandler(){
         parseBuffer();
     /*  se invece contiene la stringa che indica il fallimento dell'operazione                      */
     }else if(m_buffer.contains(_MTEMP_BOARD_FAIL)){
+        /*  pulisco il buffer                                                                       */
+        m_buffer.clear();
+        /*  emetto il segnale                                                                       */
         emit boardFailure();
     /*  se invece contiene la stringa di errore del login                                           */
     }else if(m_buffer.contains(_MTEMP_BOARD_ERROR)){
+        /*  pulisco il buffer                                                                       */
+        m_buffer.clear();
+        /*  emetto il segnale                                                                       */
         emit boardError();
     }
 }

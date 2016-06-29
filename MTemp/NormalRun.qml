@@ -13,7 +13,7 @@ Item {
 
     function roomUpdate(name, status, mode, temp){
 
-        swipeView.currentItem.name.text = name;
+        swipeView.currentItem.name.text = ((temp === 0) ? "Sensore non trovato" : name);
         swipeView.currentItem.mode = mode;
         swipeView.currentItem.status = status;
         swipeView.currentItem.temperature = temp;
